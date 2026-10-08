@@ -5,6 +5,7 @@ public class Main {
         String url = "jdbc:mysql://localhost:3306/StudentsDB";
         String username = "root";
         String password = "KiDiSt-3..,";
+
         try {
             Connection connection = DriverManager.getConnection(url, username, password);
             Statement statement = connection.createStatement();
@@ -15,16 +16,19 @@ public class Main {
             // Task 2: Insert Data
             insertSampleData(connection);
 
-            // Task 3: Retrieve Data Before Changes
-            System.out.println("--- Data Before Update and Delete ---");
+            // Task 3: Retrieve Data
+            System.out.println("--- Current Student Data ---");
             retrieveData(connection);
 
             // Task 4: Update and Delete Data
-            updateStudentGrade(connection, 1, 96);
+            updateStudentGrade(connection, 1, 95);
             deleteStudent(connection, 11);
 
-            // Task 3: Retrieve Data After Changes
-            System.out.println("\n--- Data After Update and Delete ---");
+            // Task 5: Transaction Management
+            performTransaction(connection);
+
+            // Final Data Display
+            System.out.println("\n--- Final Student Data ---");
             retrieveData(connection);
 
             // Close resources
@@ -85,7 +89,7 @@ public class Main {
                 String lastname = resultSet.getString("lastname");
                 int grade = resultSet.getInt("grade");
 
-                System.out.println(id + " " + " | " + firstname + " " +" | " + lastname + " " + " | " + grade);
+                System.out.println(id + " | " + firstname + " | " + lastname + " | " + grade);
             }
 
             resultSet.close();
@@ -119,6 +123,36 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    private static void performTransaction(Connection connection) {
+        try {
+            // Disable auto-commit
+            connection.setAutoCommit(false);
+
+            PreparedStatement update1 = connection.prepareStatement("UPDATE students SET grade = ? WHERE id = ?");
+            update1.setInt(1, 98);
+            update1.setInt(2, 2);
+            update1.executeUpdate();
+
+            PreparedStatement update2 = connection.prepareStatement("UPDATE students SET grade = ? WHERE id = ?");
+            update2.setInt(1, 99);
+            update2.setInt(2, 3);
+            update2.executeUpdate();
+
+            // Commit transaction
+            connection.commit();
+            System.out.println("\nTransaction committed successfully.");
+
+            // Restore auto-commit mode
+            connection.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                connection.rollback();
+                System.out.println("Transaction rolled back due to error.");
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+    }
 }
-
-
