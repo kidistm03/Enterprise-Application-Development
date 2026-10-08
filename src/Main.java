@@ -16,7 +16,10 @@ public class Main {
             // Task 2: Insert Data
             insertSampleData(connection);
 
-            // Close the resources
+            // Task 3: Retrieve Data
+            retrieveData(connection);
+
+            // Close resources
             statement.close();
             connection.close();
         } catch (Exception e) {
@@ -26,7 +29,6 @@ public class Main {
 
     private static void insertSampleData(Connection connection) {
         try {
-            // Insert a single row (using IGNORE to avoid duplicate key errors)
             PreparedStatement insertSingle = connection.prepareStatement("INSERT IGNORE INTO students (id, firstname, lastname, grade) VALUES (?, ?, ?, ?)");
             insertSingle.setInt(1, 1);
             insertSingle.setString(2, "John");
@@ -34,7 +36,6 @@ public class Main {
             insertSingle.setInt(4, 90);
             insertSingle.executeUpdate();
 
-            // Insert ten more rows
             PreparedStatement insertStmt = connection.prepareStatement("INSERT IGNORE INTO students (id, firstname, lastname, grade) VALUES (?, ?, ?, ?)");
 
             Object[][] studentsData = {
@@ -57,8 +58,30 @@ public class Main {
                 insertStmt.setInt(4, (Integer) student[3]);
                 insertStmt.executeUpdate();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            System.out.println("All sample data inserted successfully!");
+    private static void retrieveData(Connection connection) {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM students");
+
+            System.out.println("ID | First Name | Last Name | Grade");
+            System.out.println("------------------------------------");
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                int grade = resultSet.getInt("grade");
+
+                System.out.println(id + " " + " | " + firstname + " " +" | " + lastname + " " + " | " + grade);
+            }
+
+            resultSet.close();
+            statement.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
