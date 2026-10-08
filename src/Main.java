@@ -5,7 +5,6 @@ public class Main {
         String url = "jdbc:mysql://localhost:3306/StudentsDB";
         String username = "root";
         String password = "KiDiSt-3..,";
-
         try {
             Connection connection = DriverManager.getConnection(url, username, password);
             Statement statement = connection.createStatement();
@@ -16,7 +15,16 @@ public class Main {
             // Task 2: Insert Data
             insertSampleData(connection);
 
-            // Task 3: Retrieve Data
+            // Task 3: Retrieve Data Before Changes
+            System.out.println("--- Data Before Update and Delete ---");
+            retrieveData(connection);
+
+            // Task 4: Update and Delete Data
+            updateStudentGrade(connection, 1, 96);
+            deleteStudent(connection, 11);
+
+            // Task 3: Retrieve Data After Changes
+            System.out.println("\n--- Data After Update and Delete ---");
             retrieveData(connection);
 
             // Close resources
@@ -86,4 +94,31 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    private static void updateStudentGrade(Connection connection, int id, int newGrade) {
+        try {
+            PreparedStatement updateStmt = connection.prepareStatement("UPDATE students SET grade = ? WHERE id = ?");
+            updateStmt.setInt(1, newGrade);
+            updateStmt.setInt(2, id);
+            updateStmt.executeUpdate();
+            System.out.println("\nStudent ID " + id + " grade updated to " + newGrade);
+            updateStmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteStudent(Connection connection, int id) {
+        try {
+            PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM students WHERE id = ?");
+            deleteStmt.setInt(1, id);
+            deleteStmt.executeUpdate();
+            System.out.println("Student ID " + id + " deleted successfully.");
+            deleteStmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+
